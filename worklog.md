@@ -82,4 +82,30 @@
     ＞　ギュアア　＜  
     ￣Y^Y^Y^Y^Y^Y^￣  
 
+## sshd
+- 
+apt-get install ssh
+apt-get install iputils-ping
+apt-get install vim
+
+- ポート結んでないので、いったんコンテナをコミットしてイメージ化してまたrun
+  ```sh
+  docker commit ubuntu-devel-3 ubuntu-with-systemd:1
+  docker run -d --privileged -v $PWD:/mnt/host --name "ubuntu-devel-4" -p <bindするip>:22 ubuntu-with-systemd:1 "/sbin/init"
+  ```
+
+- iptables
+  ```sh
+  apt-get install iptables
+  iptables -P INPUT DROP
+  iptables -A INPUT -s <hostのIP> -p tcp --dport 22 -j ACCEPT
+  ```
+- ssh
+  ```
+  ## container側
+  cat <hostのpubkey> >> /root/.ssh/authorized_keys
+  ## host側
+  ssh -i <鍵> root@localhost -p <bindしたip> 
+  ```
+  - 繋がったー！！
 
