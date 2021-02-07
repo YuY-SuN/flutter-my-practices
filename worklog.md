@@ -83,10 +83,11 @@
     ￣Y^Y^Y^Y^Y^Y^￣  
 
 ## sshd
-- 
+``` sh
 apt-get install ssh
 apt-get install iputils-ping
 apt-get install vim
+```
 
 - ポート結んでないので、いったんコンテナをコミットしてイメージ化してまたrun
   ```sh
@@ -108,4 +109,62 @@ apt-get install vim
   ssh -i <鍵> root@localhost -p <bindしたip> 
   ```
   - 繋がったー！！
+  - root権限は激ヤバなので、useraddした方がいいかな,,
 
+## X11
+  - mac側
+   ` brew install xquartz `
+  - ubuntu側
+   ``` sh
+   apt-get install x11-apps  
+   xeyes
+   ```
+   - 目が生えてきた！
+
+## Android Studio
+```
+~/android-studio/bin# ./studio.sh 
+> Start Failed: Internal error. Please refer to https://code.google.com/p/android/issues
+> 
+> com.intellij.ide.plugins.StartupAbortedException: UI initialization failed
+> Caused by: java.util.concurrent.CompletionException: java.lang.UnsatisfiedLinkError: /root/android-studio/jre/jre/lib/amd64/libawt_xawt.so: libXtst.so.6: cannot open shared object file: No such file or directory
+> Caused by: java.lang.UnsatisfiedLinkError: /root/android-studio/jre/jre/lib/amd64/libawt_xawt.so: libXtst.so.6: cannot open shared object file: No such file or directory
+```
+- 解決
+  `~/android-studio/bin# apt-get install libxrender1 libxtst6 libxi6`
+  - インストールできた！
+
+## android emulator
+- `Your CPU dose not support reqired features (VT-x or SVM).`
+
+- 何も出ない..
+  ``` sh
+  cat /proc/cpuinfo | grep svm
+  cat /proc/cpuinfo | grep vmx
+  ```
+  - kvm がないから、 /dev/kvm と結びつけることもできない
+  - 無理っぽいので remote で...
+- no-accel でいける可能性
+  - emulatorを動かすために
+  ``` sh
+  apt-get install libpulse0
+  apt-get install libglu1-mesa
+  apt install libnss3
+  apt-get install -y xvfb
+  ## だめだったような 
+  #apt-get install libxcomposite
+  #apt-get install libxcomposite-devel
+  ## これをして、不足分を洗い出す 
+  ldd /root/Android/Sdk/emulator/qemu/linux-x86_64/qemu-system-x86_64
+  ## 不足分を入れる
+  apt install libc++-dev
+  apt-get install qt5-default
+  ```
+  - まだ動かない
+    - `[554:554:0207/073406.611583:ERROR:zygote_host_impl_linux.cc(89)] Running as root without --no-sandbox is not supported. See https://crbug.com/638180.  `
+    - `export QTWEBENGINE_DISABLE_SANDBOX=1`
+  - 端末の画面は出てきた！が、何も描画されない...
+
+- 混乱してきた...
+  - flutter を VMaccelerator なしで動かすアプローチで行ってみたい
+  - 整理するかー、、
